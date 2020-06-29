@@ -15,6 +15,21 @@ const CSV_STR: &str = "customer_id,date,price,quantity
 ";
 
 fn main() {
-    let p = CSVParser::parse(Rule::file, CSV_STR);
-    println!("{:?}", p);
+    let p = CSVParser::parse(Rule::file, CSV_STR)
+        .expect("failed to parse")
+        .next().unwrap();
+
+    let mut rec_count: u32 = 0;
+    for record in p.into_inner() {
+        match record.as_rule() {
+            Rule::record => {
+                rec_count += 1;
+                for field in record.into_inner() {
+                    println!("{}: {:?}", rec_count, field.as_str());
+                }
+            }
+            Rule::EOI => {},
+            _ => unreachable!(),
+        }
+    }
 }
